@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.project.game.PongGame;
 import com.project.game.entities.Ball;
@@ -124,13 +125,22 @@ public class GameScreen implements Screen {
         }
 
         //walls - x
-        if (ball.x < 15) {
+        if (ball.x < 30) {
             scorePlayer2++;
             resetBallPosition(1);
         }
-        if (ball.x > tableWidth - 15) {
+        if (ball.x > tableWidth - 30) {
             scorePlayer1++;
             resetBallPosition(-1);
+        }
+
+        //player 1 paddle
+        if(isPaddleCollision(player1)){
+            ball.velocityX = 5;
+        }
+        //player 2 paddle
+        if(isPaddleCollision(player2)){
+            ball.velocityX = -5;
         }
     }
 
@@ -139,6 +149,10 @@ public class GameScreen implements Screen {
         ball.x = tableWidth / 2;
         ball.velocityX = 5 * direction;
         ball.velocityY = -5;
+    }
+
+    private boolean isPaddleCollision(Paddle paddle){
+        return Intersector.overlaps(ball, paddle) && ball.x > 35 && ball.x < tableWidth - 35;
     }
 
     @Override
