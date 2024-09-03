@@ -24,8 +24,8 @@ public class GameScreen implements Screen {
 
     private SpriteBatch batch;
     private BitmapFont scoreFont;
-    private int scorePlayer1 = 0;
-    private int scorePlayer2 = 0;
+    private int scorePlayer1;
+    private int scorePlayer2;
 
     private Paddle player1;
     private ShapeRenderer shapePlayer1;
@@ -35,12 +35,23 @@ public class GameScreen implements Screen {
     private Ball ball;
     private ShapeRenderer ballShape;
 
+    private boolean isGameOver = false;
+    private String winner;
+    private BitmapFont gameOverFont;
+    private BitmapFont scoreGameOverFont;
+
+    private boolean showText = true;
+    private final float blinkingTime = 0.6f;
+    private float timer;
+
     public GameScreen(PongGame pongGame) {
         this.pongGame = pongGame;
     }
 
     @Override
     public void show() {
+        scorePlayer1 = 0;
+        scorePlayer2 = 0;
         divisor = new ShapeRenderer();
         batch = new SpriteBatch();
 
@@ -54,45 +65,84 @@ public class GameScreen implements Screen {
 
         player1 = new Paddle(20, tableHeight / 2 - 40, 15, 80);
         shapePlayer1 = new ShapeRenderer();
-        player2 = new Paddle(tableWidth - 40, tableHeight/ 2 - 40, 15, 80);
+        player2 = new Paddle(tableWidth - 40, tableHeight / 2 - 40, 15, 80);
         shapePlayer2 = new ShapeRenderer();
 
-        ball = new Ball(tableWidth / 2, tableHeight/ 2, 15);
+        ball = new Ball(tableWidth / 2, tableHeight / 2, 15);
         ballShape = new ShapeRenderer();
+
+        winner = "";
+        FreeTypeFontGenerator.FreeTypeFontParameter parameterGameEnded = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameterGameEnded.size = 20;
+        parameterGameEnded.borderWidth = 1;
+        parameterGameEnded.borderColor = Color.BLACK;
+        parameterGameEnded.color = Color.WHITE;
+        gameOverFont = generator.generateFont(parameterGameEnded);
+
+
+        FreeTypeFontGenerator.FreeTypeFontParameter parameterScoreGameover = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameterScoreGameover.size = 40;
+        parameterScoreGameover.borderWidth = 1;
+        parameterScoreGameover.borderColor = Color.BLACK;
+        parameterScoreGameover.color = Color.WHITE;
+        scoreGameOverFont = generator.generateFont(parameterScoreGameover);
+        generator.dispose();
     }
 
     @Override
-    public void render(float v) {
+    public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
-        drawLineDivisor();
-        movePaddle();
-        ballCollisions();
+        if(!isGameOver) {
+            this.drawLineDivisor();
+            this.movePaddle();
+            this.ballCollisions();
+            this.gameOver();
 
-        player1.drawPaddle(shapePlayer1);
-        player2.drawPaddle(shapePlayer2);
+            player1.drawPaddle(shapePlayer1);
+            player2.drawPaddle(shapePlayer2);
 
-        ball.drawBall(ballShape);
+            ball.drawBall(ballShape);
 
-        ball.x += ball.velocityX;
-        ball.y += ball.velocityY;
+            ball.x += ball.velocityX;
+            ball.y += ball.velocityY;
 
-        batch.begin();
-        scoreFont.draw(batch, String.format("%02d", scorePlayer1), tableWidth / 2 - 120, tableHeight- 20);
-        scoreFont.draw(batch, String.format("%02d", scorePlayer2), tableWidth / 2 + 40, tableHeight- 20);
-        batch.end();
+            batch.begin();
+            scoreFont.draw(batch, String.format("%02d", scorePlayer1), tableWidth / 2 - 120, tableHeight - 20);
+            scoreFont.draw(batch, String.format("%02d", scorePlayer2), tableWidth / 2 + 40, tableHeight - 20);
+            batch.end();
+        } else {
+            timer += delta;
+            if(timer > blinkingTime){
+                showText = !showText;
+                timer = 0;
+            }
+
+            batch.begin();
+            scoreGameOverFont.draw(batch, "Player 1", 100, tableHeight - 100);
+            scoreGameOverFont.draw(batch, String.format("%02d", scorePlayer1), 200, tableHeight - 180);
+
+            scoreGameOverFont.draw(batch, "Player 2", tableWidth - 430, tableHeight - 100);
+            scoreGameOverFont.draw(batch, String.format("%02d", scorePlayer2), tableWidth - 320, tableHeight - 180);
+
+            if(showText){
+                gameOverFont.draw(batch, winner + " wins. Press esc to return to menu!", tableWidth / 2 - 410 , tableHeight - 550);
+            }
+            batch.end();
+            returnToMenu();
+        }
     }
 
     private void drawLineDivisor() {
         divisor.begin(ShapeRenderer.ShapeType.Filled);
         divisor.setColor(Color.WHITE);
-        divisor.rect(tableWidth / 2 - 2, 0, 4, Gdx.graphics.getHeight());
+        divisor.rect(tableWidth / 2 - 2, 0, 4, tableHeight);
         divisor.end();
     }
 
     private void movePaddle() {
         //player 1
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            if (player1.y < tableHeight- player1.height) {
+            if (player1.y < tableHeight - player1.height) {
                 player1.y += player1.velocity;
             }
         }
@@ -104,7 +154,7 @@ public class GameScreen implements Screen {
 
         //player 2
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            if (player2.y < tableHeight- player2.height) {
+            if (player2.y < tableHeight - player2.height) {
                 player2.y += player2.velocity;
             }
         }
@@ -120,7 +170,7 @@ public class GameScreen implements Screen {
         if (ball.y < 15) {
             ball.velocityY = 5;
         }
-        if (ball.y > tableHeight- 15) {
+        if (ball.y > tableHeight - 15) {
             ball.velocityY = -5;
         }
 
@@ -135,24 +185,42 @@ public class GameScreen implements Screen {
         }
 
         //player 1 paddle
-        if(isPaddleCollision(player1)){
+        if (isPaddleCollision(player1)) {
             ball.velocityX = 5;
         }
         //player 2 paddle
-        if(isPaddleCollision(player2)){
+        if (isPaddleCollision(player2)) {
             ball.velocityX = -5;
         }
     }
 
     private void resetBallPosition(int direction) {
-        ball.y = tableHeight/ 2;
+        ball.y = tableHeight / 2;
         ball.x = tableWidth / 2;
         ball.velocityX = 5 * direction;
         ball.velocityY = -5;
     }
 
-    private boolean isPaddleCollision(Paddle paddle){
+    private boolean isPaddleCollision(Paddle paddle) {
         return Intersector.overlaps(ball, paddle) && ball.x > 35 && ball.x < tableWidth - 35;
+    }
+
+    private void gameOver(){
+        if(scorePlayer1 >= 5 || scorePlayer2 >= 5){
+            isGameOver = true;
+            if(scorePlayer1 > scorePlayer2){
+                winner = "Player 1";
+            } else {
+                winner = "Player 2";
+            }
+        }
+    }
+
+    private void returnToMenu(){
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            isGameOver = false;
+            pongGame.setScreen(pongGame.menuScreen);
+        }
     }
 
     @Override
@@ -162,6 +230,8 @@ public class GameScreen implements Screen {
         shapePlayer2.dispose();
         ballShape.dispose();
         batch.dispose();
+        scoreFont.dispose();
+        gameOverFont.dispose();
     }
 
     @Override
