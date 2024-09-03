@@ -28,7 +28,6 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/font.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter titleParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         titleParameter.size = 100;

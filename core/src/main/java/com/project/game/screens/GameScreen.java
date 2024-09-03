@@ -3,6 +3,7 @@ package com.project.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -24,7 +25,7 @@ public class GameScreen implements Screen {
 
     private SpriteBatch batch;
     private BitmapFont scoreFont;
-    private int scorePlayer1;
+    public int scorePlayer1;
     private int scorePlayer2;
 
     private Paddle player1;
@@ -43,6 +44,10 @@ public class GameScreen implements Screen {
     private boolean showText = true;
     private final float blinkingTime = 0.6f;
     private float timer;
+
+    private Sound paddleSound;
+    private Sound wallSound;
+    private Sound scoreSound;
 
     public GameScreen(PongGame pongGame) {
         this.pongGame = pongGame;
@@ -79,7 +84,6 @@ public class GameScreen implements Screen {
         parameterGameEnded.color = Color.WHITE;
         gameOverFont = generator.generateFont(parameterGameEnded);
 
-
         FreeTypeFontGenerator.FreeTypeFontParameter parameterScoreGameover = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameterScoreGameover.size = 40;
         parameterScoreGameover.borderWidth = 1;
@@ -87,13 +91,17 @@ public class GameScreen implements Screen {
         parameterScoreGameover.color = Color.WHITE;
         scoreGameOverFont = generator.generateFont(parameterScoreGameover);
         generator.dispose();
+
+        paddleSound = Gdx.audio.newSound(Gdx.files.internal("sounds/paddle.wav"));
+        wallSound = Gdx.audio.newSound(Gdx.files.internal("sounds/wall.wav"));
+        scoreSound = Gdx.audio.newSound(Gdx.files.internal("sounds/score.mp3"));
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
-        if(!isGameOver) {
-            this.drawLineDivisor();
+        if (!isGameOver) {
+            this.drawDivisorLine();
             this.movePaddle();
             this.ballCollisions();
             this.gameOver();
@@ -112,7 +120,7 @@ public class GameScreen implements Screen {
             batch.end();
         } else {
             timer += delta;
-            if(timer > blinkingTime){
+            if (timer > blinkingTime) {
                 showText = !showText;
                 timer = 0;
             }
@@ -124,15 +132,15 @@ public class GameScreen implements Screen {
             scoreGameOverFont.draw(batch, "Player 2", tableWidth - 430, tableHeight - 100);
             scoreGameOverFont.draw(batch, String.format("%02d", scorePlayer2), tableWidth - 320, tableHeight - 180);
 
-            if(showText){
-                gameOverFont.draw(batch, winner + " wins. Press esc to return to menu!", tableWidth / 2 - 410 , tableHeight - 550);
+            if (showText) {
+                gameOverFont.draw(batch, winner + " wins. Press esc to return to menu!", tableWidth / 2 - 410, tableHeight - 550);
             }
             batch.end();
             returnToMenu();
         }
     }
 
-    private void drawLineDivisor() {
+    private void drawDivisorLine() {
         divisor.begin(ShapeRenderer.ShapeType.Filled);
         divisor.setColor(Color.WHITE);
         divisor.rect(tableWidth / 2 - 2, 0, 4, tableHeight);
@@ -168,28 +176,34 @@ public class GameScreen implements Screen {
     private void ballCollisions() {
         //walls  - y
         if (ball.y < 15) {
+            wallSound.play();
             ball.velocityY = 5;
         }
         if (ball.y > tableHeight - 15) {
+            wallSound.play();
             ball.velocityY = -5;
         }
 
         //walls - x
         if (ball.x < 30) {
+            scoreSound.play();
             scorePlayer2++;
             resetBallPosition(1);
         }
         if (ball.x > tableWidth - 30) {
+            scoreSound.play();
             scorePlayer1++;
             resetBallPosition(-1);
         }
 
         //player 1 paddle
         if (isPaddleCollision(player1)) {
+            paddleSound.play();
             ball.velocityX = 5;
         }
         //player 2 paddle
         if (isPaddleCollision(player2)) {
+            paddleSound.play();
             ball.velocityX = -5;
         }
     }
@@ -205,10 +219,10 @@ public class GameScreen implements Screen {
         return Intersector.overlaps(ball, paddle) && ball.x > 35 && ball.x < tableWidth - 35;
     }
 
-    private void gameOver(){
-        if(scorePlayer1 >= 5 || scorePlayer2 >= 5){
+    private void gameOver() {
+        if (scorePlayer1 >= 5 || scorePlayer2 >= 5) {
             isGameOver = true;
-            if(scorePlayer1 > scorePlayer2){
+            if (scorePlayer1 > scorePlayer2) {
                 winner = "Player 1";
             } else {
                 winner = "Player 2";
@@ -216,8 +230,8 @@ public class GameScreen implements Screen {
         }
     }
 
-    private void returnToMenu(){
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+    private void returnToMenu() {
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             isGameOver = false;
             pongGame.setScreen(pongGame.menuScreen);
         }
@@ -232,6 +246,10 @@ public class GameScreen implements Screen {
         batch.dispose();
         scoreFont.dispose();
         gameOverFont.dispose();
+
+        paddleSound.dispose();
+        wallSound.dispose();
+        scoreSound.dispose();
     }
 
     @Override
