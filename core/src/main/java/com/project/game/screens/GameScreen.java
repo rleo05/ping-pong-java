@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.project.game.PongGame;
+import com.project.game.entities.Ball;
 import com.project.game.entities.Paddle;
 
 public class GameScreen implements Screen {
@@ -26,6 +27,9 @@ public class GameScreen implements Screen {
     private ShapeRenderer shapePlayer1;
     private Paddle player2;
     private ShapeRenderer shapePlayer2;
+
+    private Ball ball;
+    private ShapeRenderer ballShape;
 
     public GameScreen(PongGame pongGame) {
         this.pongGame = pongGame;
@@ -48,6 +52,9 @@ public class GameScreen implements Screen {
         shapePlayer1 = new ShapeRenderer();
         player2 = new Paddle(Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight()/ 2 - 40, 15, 80);
         shapePlayer2 = new ShapeRenderer();
+
+        ball = new Ball(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 15);
+        ballShape = new ShapeRenderer();
     }
 
     @Override
@@ -58,6 +65,8 @@ public class GameScreen implements Screen {
 
         player1.drawPaddle(shapePlayer1);
         player2.drawPaddle(shapePlayer2);
+
+        ball.drawBall(ballShape);
 
         batch.begin();
         scoreFont.draw(batch, String.format("%02d", scorePlayer1), Gdx.graphics.getWidth()/2 - 120, Gdx.graphics.getHeight() - 20);
@@ -104,6 +113,7 @@ public class GameScreen implements Screen {
         divisor.dispose();
         shapePlayer1.dispose();
         shapePlayer2.dispose();
+        ballShape.dispose();
         batch.dispose();
     }
 
