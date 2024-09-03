@@ -54,17 +54,8 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1);
         drawLineDivisor();
 
-        shapePlayer1.begin(ShapeRenderer.ShapeType.Filled);
-        shapePlayer1.rect(player1.x, player1.y, player1.width, player1.height);
-        shapePlayer1.setColor(Color.WHITE);
-        shapePlayer1.end();
-
-        shapePlayer2.begin(ShapeRenderer.ShapeType.Filled);
-        shapePlayer2.rect(player2.x, player2.y, player2.width, player2.height);
-        shapePlayer2.setColor(Color.WHITE);
-        shapePlayer2.end();
-
-
+        player1.drawPaddle(shapePlayer1);
+        player2.drawPaddle(shapePlayer2);
 
         batch.begin();
         scoreFont.draw(batch, String.format("%02d", scorePlayer1), Gdx.graphics.getWidth()/2 - 120, Gdx.graphics.getHeight() - 20);

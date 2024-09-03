@@ -19,7 +19,7 @@ public class MenuScreen implements Screen {
 
     private final float blinkingTime = 0.6f;
     private float timer;
-    private boolean showText;
+    private boolean showText = true;
 
     public MenuScreen(PongGame pongGame) {
         this.pongGame = pongGame;
