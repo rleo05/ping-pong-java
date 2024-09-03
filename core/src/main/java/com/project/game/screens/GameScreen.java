@@ -1,6 +1,7 @@
 package com.project.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -53,6 +54,7 @@ public class GameScreen implements Screen {
     public void render(float v) {
         ScreenUtils.clear(0, 0, 0, 1);
         drawLineDivisor();
+        movePaddle();
 
         player1.drawPaddle(shapePlayer1);
         player2.drawPaddle(shapePlayer2);
@@ -68,6 +70,32 @@ public class GameScreen implements Screen {
         divisor.setColor(Color.WHITE);
         divisor.rect(Gdx.graphics.getWidth() / 2 - 2, 0, 4, Gdx.graphics.getHeight() );
         divisor.end();
+    }
+
+    private void movePaddle(){
+        //player 1
+        if(Gdx.input.isKeyPressed(Input.Keys.W)){
+            if(player1.y < Gdx.graphics.getHeight() - player1.height) {
+                player1.y += player1.velocity;
+            }
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.S)){
+            if(player1.y > 0){
+                player1.y -= player1.velocity;
+            }
+        }
+
+        //player 2
+        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
+            if(player2.y < Gdx.graphics.getHeight() - player2.height){
+                player2.y += player2.velocity;
+            }
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            if(player2.y > 0){
+                player2.y -= player2.velocity;
+            }
+        }
     }
 
 
