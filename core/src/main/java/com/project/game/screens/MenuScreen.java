@@ -1,6 +1,7 @@
 package com.project.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -49,6 +50,7 @@ public class MenuScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
+        changeScreen();
 
         timer += delta;
         if(timer > blinkingTime){
@@ -67,8 +69,16 @@ public class MenuScreen implements Screen {
     }
 
 
+    private void changeScreen(){
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+            pongGame.setScreen(pongGame.gameScreen);
+        }
+    }
+
     @Override
     public void dispose() {
+        textFont.dispose();
+        titleFont.dispose();
     }
 
     @Override
