@@ -1,21 +1,18 @@
 package com.project.game;
 
 import com.badlogic.gdx.Game;
-
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+import com.project.game.screens.MenuScreen;
 public class PongGame extends Game {
+    public MenuScreen menuScreen;
     @Override
     public void create() {
+        menuScreen = new MenuScreen(this);
 
-    }
-
-    @Override
-    public void render() {
-
+        setScreen(menuScreen);
     }
 
     @Override
     public void dispose() {
-
+        menuScreen.dispose();
     }
 }
