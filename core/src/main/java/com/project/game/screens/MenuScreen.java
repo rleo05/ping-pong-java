@@ -16,6 +16,10 @@ public class MenuScreen implements Screen {
     private BitmapFont titleFont;
     private BitmapFont textFont;
 
+    private final float blinkingTime = 0.6f;
+    private float timer;
+    private boolean showText;
+
     public MenuScreen(PongGame pongGame) {
         this.pongGame = pongGame;
     }
@@ -43,12 +47,22 @@ public class MenuScreen implements Screen {
     }
 
     @Override
-    public void render(float v) {
+    public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
+
+        timer += delta;
+        if(timer > blinkingTime){
+            showText = !showText;
+            timer = 0;
+        }
 
         batch.begin();
         titleFont.draw(batch, "Pong", Gdx.graphics.getWidth() / 2 - 200, Gdx.graphics.getHeight() - 200);
-        textFont.draw(batch, "Press space to start the game", Gdx.graphics.getWidth() / 2 - 320, Gdx.graphics.getHeight() - 550);
+
+        if(showText){
+            textFont.draw(batch, "Press space to start the game", Gdx.graphics.getWidth() / 2 - 320, Gdx.graphics.getHeight() - 550);
+        }
+
         batch.end();
     }
 
