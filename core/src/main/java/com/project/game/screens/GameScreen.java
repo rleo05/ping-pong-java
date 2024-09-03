@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.project.game.PongGame;
+import com.project.game.entities.Paddle;
 
 public class GameScreen implements Screen {
     private final PongGame pongGame;
@@ -19,6 +20,11 @@ public class GameScreen implements Screen {
     private BitmapFont scoreFont;
     private int scorePlayer1 = 0;
     private int scorePlayer2 = 0;
+
+    private Paddle player1;
+    private ShapeRenderer shapePlayer1;
+    private Paddle player2;
+    private ShapeRenderer shapePlayer2;
 
     public GameScreen(PongGame pongGame) {
         this.pongGame = pongGame;
@@ -36,12 +42,29 @@ public class GameScreen implements Screen {
         scoreParameter.color = Color.WHITE;
         scoreParameter.size = 40;
         scoreFont = generator.generateFont(scoreParameter);
+
+        player1 = new Paddle(20, Gdx.graphics.getHeight() / 2 - 40, 15, 80);
+        shapePlayer1 = new ShapeRenderer();
+        player2 = new Paddle(Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight()/ 2 - 40, 15, 80);
+        shapePlayer2 = new ShapeRenderer();
     }
 
     @Override
     public void render(float v) {
         ScreenUtils.clear(0, 0, 0, 1);
         drawLineDivisor();
+
+        shapePlayer1.begin(ShapeRenderer.ShapeType.Filled);
+        shapePlayer1.rect(player1.x, player1.y, player1.width, player1.height);
+        shapePlayer1.setColor(Color.WHITE);
+        shapePlayer1.end();
+
+        shapePlayer2.begin(ShapeRenderer.ShapeType.Filled);
+        shapePlayer2.rect(player2.x, player2.y, player2.width, player2.height);
+        shapePlayer2.setColor(Color.WHITE);
+        shapePlayer2.end();
+
+
 
         batch.begin();
         scoreFont.draw(batch, String.format("%02d", scorePlayer1), Gdx.graphics.getWidth()/2 - 120, Gdx.graphics.getHeight() - 20);
@@ -60,6 +83,8 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         divisor.dispose();
+        shapePlayer1.dispose();
+        shapePlayer2.dispose();
         batch.dispose();
     }
 
