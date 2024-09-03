@@ -16,6 +16,9 @@ import com.project.game.entities.Paddle;
 public class GameScreen implements Screen {
     private final PongGame pongGame;
 
+    private final float tableWidth = Gdx.graphics.getWidth();
+    private final float tableHeight = Gdx.graphics.getHeight();
+
     private ShapeRenderer divisor;
 
     private SpriteBatch batch;
@@ -48,12 +51,12 @@ public class GameScreen implements Screen {
         scoreParameter.size = 40;
         scoreFont = generator.generateFont(scoreParameter);
 
-        player1 = new Paddle(20, Gdx.graphics.getHeight() / 2 - 40, 15, 80);
+        player1 = new Paddle(20, tableHeight / 2 - 40, 15, 80);
         shapePlayer1 = new ShapeRenderer();
-        player2 = new Paddle(Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight()/ 2 - 40, 15, 80);
+        player2 = new Paddle(tableWidth - 40, tableHeight/ 2 - 40, 15, 80);
         shapePlayer2 = new ShapeRenderer();
 
-        ball = new Ball(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 15);
+        ball = new Ball(tableWidth / 2, tableHeight/ 2, 15);
         ballShape = new ShapeRenderer();
     }
 
@@ -62,51 +65,81 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1);
         drawLineDivisor();
         movePaddle();
+        ballCollisions();
 
         player1.drawPaddle(shapePlayer1);
         player2.drawPaddle(shapePlayer2);
 
         ball.drawBall(ballShape);
 
+        ball.x += ball.velocityX;
+        ball.y += ball.velocityY;
+
         batch.begin();
-        scoreFont.draw(batch, String.format("%02d", scorePlayer1), Gdx.graphics.getWidth()/2 - 120, Gdx.graphics.getHeight() - 20);
-        scoreFont.draw(batch, String.format("%02d", scorePlayer2), Gdx.graphics.getWidth()/2 + 40, Gdx.graphics.getHeight() - 20);
+        scoreFont.draw(batch, String.format("%02d", scorePlayer1), tableWidth / 2 - 120, tableHeight- 20);
+        scoreFont.draw(batch, String.format("%02d", scorePlayer2), tableWidth / 2 + 40, tableHeight- 20);
         batch.end();
     }
 
     private void drawLineDivisor() {
         divisor.begin(ShapeRenderer.ShapeType.Filled);
         divisor.setColor(Color.WHITE);
-        divisor.rect(Gdx.graphics.getWidth() / 2 - 2, 0, 4, Gdx.graphics.getHeight() );
+        divisor.rect(tableWidth / 2 - 2, 0, 4, Gdx.graphics.getHeight());
         divisor.end();
     }
 
-    private void movePaddle(){
+    private void movePaddle() {
         //player 1
-        if(Gdx.input.isKeyPressed(Input.Keys.W)){
-            if(player1.y < Gdx.graphics.getHeight() - player1.height) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            if (player1.y < tableHeight- player1.height) {
                 player1.y += player1.velocity;
             }
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)){
-            if(player1.y > 0){
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            if (player1.y > 0) {
                 player1.y -= player1.velocity;
             }
         }
 
         //player 2
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            if(player2.y < Gdx.graphics.getHeight() - player2.height){
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            if (player2.y < tableHeight- player2.height) {
                 player2.y += player2.velocity;
             }
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            if(player2.y > 0){
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            if (player2.y > 0) {
                 player2.y -= player2.velocity;
             }
         }
     }
 
+    private void ballCollisions() {
+        //walls  - y
+        if (ball.y < 15) {
+            ball.velocityY = 5;
+        }
+        if (ball.y > tableHeight- 15) {
+            ball.velocityY = -5;
+        }
+
+        //walls - x
+        if (ball.x < 15) {
+            scorePlayer2++;
+            resetBallPosition(1);
+        }
+        if (ball.x > tableWidth - 15) {
+            scorePlayer1++;
+            resetBallPosition(-1);
+        }
+    }
+
+    private void resetBallPosition(int direction) {
+        ball.y = tableHeight/ 2;
+        ball.x = tableWidth / 2;
+        ball.velocityX = 5 * direction;
+        ball.velocityY = -5;
+    }
 
     @Override
     public void dispose() {
@@ -120,12 +153,15 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int i, int i1) {
     }
+
     @Override
     public void pause() {
     }
+
     @Override
     public void resume() {
     }
+
     @Override
     public void hide() {
     }

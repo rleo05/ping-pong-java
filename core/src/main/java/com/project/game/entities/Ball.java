@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 
 public class Ball extends Circle {
-    private float velocityX = -5;
-    private float velocityY = -5;
+    public float velocityX = -5;
+    public float velocityY = -5;
 
     public Ball(float x, float y, float radius){
         this.x = x;
